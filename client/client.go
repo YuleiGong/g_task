@@ -1,6 +1,8 @@
 package client
 
 import (
+	"errors"
+
 	"github.com/YuleiGong/g_task/backend"
 	"github.com/YuleiGong/g_task/broker"
 	"github.com/YuleiGong/g_task/message"
@@ -52,6 +54,9 @@ func GetClient(opts ...ClientOpt) (*Client, error) {
 		if err = cli.broker.Activate(); err != nil {
 			return cli, err
 		}
+	}
+	if cli.backend == nil {
+		err = errors.New("please run server or set backend and broker")
 	}
 
 	return cli, err

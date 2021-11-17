@@ -1,6 +1,6 @@
 //1: go test task_test.go task.go --run="TestServerRun" -v
 //2: go test task_test.go task.go --run="TestClientRun" -v
-package task
+package g_task
 
 import (
 	"runtime/debug"

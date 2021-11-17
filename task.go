@@ -1,4 +1,4 @@
-package task
+package g_task
 
 import (
 	"github.com/YuleiGong/g_task/client"
