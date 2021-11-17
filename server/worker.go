@@ -137,7 +137,6 @@ func (w *Worker) execFuncWithTimeout(msg *message.Message) (result []string, err
 		fr.result, fr.err = w.execFunc(m)
 		resp <- fr
 	}(msg)
-	defer close(resp)
 
 	select {
 	case <-ctx.Done():
