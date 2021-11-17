@@ -5,6 +5,7 @@ import (
 
 	"github.com/YuleiGong/g_task/backend"
 	"github.com/YuleiGong/g_task/broker"
+	"github.com/YuleiGong/g_task/log"
 )
 
 type Server struct {
@@ -24,6 +25,7 @@ func NewServer(opts ...WorkerOpt) *Server {
 }
 
 func (s *Server) Reg(funcName string, wFunc interface{}) {
+	log.Info("reg func: %s", funcName)
 	t := reflect.TypeOf(wFunc).Kind().String()
 	if t == "func" {
 		s.worker.addFuncWorker(funcName, wFunc)

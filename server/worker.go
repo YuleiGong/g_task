@@ -3,11 +3,13 @@ package server
 import (
 	"context"
 	"errors"
+	"runtime/debug"
 
 	"time"
 
 	"github.com/YuleiGong/g_task/backend"
 	"github.com/YuleiGong/g_task/broker"
+	"github.com/YuleiGong/g_task/log"
 	"github.com/YuleiGong/g_task/message"
 	"github.com/go-redis/redis"
 )
@@ -47,6 +49,7 @@ func (w *Worker) addFuncWorker(name string, wf interface{}) {
 }
 
 func (w *Worker) Run(numWorker int) error {
+	log.Info("worker run ...")
 	w.stopChan = make(chan error)
 	w.initReadyWoker(numWorker)
 	w.resultChan = make(chan *message.MessageResult, numWorker)
@@ -57,6 +60,7 @@ func (w *Worker) Run(numWorker int) error {
 }
 
 func (w *Worker) Stop() {
+	log.Info("stop server ...")
 	close(w.readyChan)
 	for len(w.resultChan) > 0 {
 		time.Sleep(time.Millisecond)
@@ -81,6 +85,7 @@ func (w *Worker) wokerSchedule() {
 				w.resultChan <- &message.MessageResult{}
 				continue
 			}
+			log.Error("%v", err)
 			w.Stop()
 		}
 		w.execFuncWorker(taskID, msg)
@@ -95,6 +100,8 @@ func (w *Worker) execFuncWorker(taskID string, msg *message.Message) {
 	msgRes := &message.MessageResult{ErrCode: message.SUCCESS, TaskID: taskID}
 	defer func() {
 		if e := recover(); e != nil {
+			log.Error("%v", e)
+			log.Error("%s", string(debug.Stack()))
 			w.Stop()
 		}
 		if err != nil {
@@ -111,6 +118,7 @@ func (w *Worker) execFuncWorker(taskID string, msg *message.Message) {
 	msg.Started()
 	w.updateBroker(msg, taskID) //任务开始
 
+	log.Info("receive task %s", taskID)
 	if msg.IsTimeoutOpt() {
 		result, err = w.execFuncWithTimeout(msg)
 	} else {
@@ -170,6 +178,7 @@ func (w *Worker) updateBroker(msg *message.Message, taskID string) (err error) {
 		return
 	}
 	if err = w.broker.Set(taskID, msg); err != nil {
+		log.Error("%v", err)
 		w.Stop()
 	}
 	return err
@@ -178,7 +187,9 @@ func (w *Worker) updateBroker(msg *message.Message, taskID string) (err error) {
 func (w *Worker) RetryTask(msg *message.Message) (err error) {
 	msg.Retry()
 	msg.AddRetry()
+	log.Info("retry task %s", msg.TaskID)
 	if err = w.broker.Push(msg.TaskID, msg); err != nil {
+		log.Error("%v", err)
 		w.Stop()
 		return
 	}
