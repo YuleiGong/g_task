@@ -118,5 +118,5 @@ func main() {
 ```
 
 # Example
-[example] 目录下有更多的样例可供参考
+[example](https://github.com/YuleiGong/g_task/tree/main/example) 目录下有更多的样例可供参考
 
