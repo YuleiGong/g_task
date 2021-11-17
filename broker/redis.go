@@ -1,34 +1,39 @@
 package broker
 
 import (
+	"time"
+
 	"github.com/YuleiGong/g_task/message"
 
 	"github.com/go-redis/redis"
 )
 
 type Redis struct {
-	url      string
-	poolSize int
-	db       int
-	password string
-	client   *redis.Client
+	url        string
+	poolSize   int
+	db         int
+	password   string
+	expireTime time.Duration
+	client     *redis.Client
 }
 
-func NewRedis(url, password string, db, poolSize int) *Redis {
+func NewRedis(cfg *RedisConf) *Redis {
 	return &Redis{
-		url:      url,
-		password: password,
-		poolSize: poolSize,
-		db:       db,
+		url:        cfg.url,
+		password:   cfg.password,
+		poolSize:   cfg.poolSize,
+		db:         cfg.db,
+		expireTime: cfg.expireTime,
 	}
 }
 
 func (r *Redis) Clone() Broker {
 	return &Redis{
-		url:      r.url,
-		password: r.password,
-		poolSize: r.poolSize,
-		db:       r.db,
+		url:        r.url,
+		password:   r.password,
+		poolSize:   r.poolSize,
+		db:         r.db,
+		expireTime: r.expireTime,
 	}
 }
 
@@ -43,8 +48,6 @@ func (r *Redis) Activate() (err error) {
 	return r.client.Ping().Err()
 }
 
-//1. 取出消息
-//2. 拿到消息具体内容
 func (r *Redis) Pop() (taskID string, msg *message.Message, err error) {
 
 	var vals []string
@@ -66,8 +69,6 @@ func (r *Redis) Pop() (taskID string, msg *message.Message, err error) {
 	return taskID, msg, err
 }
 
-//1. 插入消息
-//2. 设置消息内容
 func (r *Redis) Push(taskID string, msg *message.Message) (err error) {
 	pipeline := r.client.Pipeline()
 	if _, err = pipeline.LPush(queueName, taskID).Result(); err != nil {
@@ -79,7 +80,7 @@ func (r *Redis) Push(taskID string, msg *message.Message) (err error) {
 		return
 	}
 
-	if _, err = pipeline.Set(taskID, m, expireTime).Result(); err != nil {
+	if _, err = pipeline.Set(taskID, m, r.expireTime).Result(); err != nil {
 		return
 	}
 
@@ -88,7 +89,6 @@ func (r *Redis) Push(taskID string, msg *message.Message) (err error) {
 	return err
 }
 
-//删除消息内容
 func (r *Redis) Del(taskID string) (err error) {
 	if _, err = r.client.Del(taskID).Result(); err != nil {
 		return
