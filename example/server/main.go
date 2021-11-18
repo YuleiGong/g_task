@@ -42,6 +42,6 @@ func main() {
 	if err := svr.Run(10); err != nil {
 		fmt.Printf("%v", err)
 	}
-	defer svr.ShutDown()
+	//defer svr.ShutDown()
 
 }

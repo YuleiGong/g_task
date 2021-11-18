@@ -9,4 +9,5 @@ type Broker interface {
 	Pop() (taskID string, msg *message.Message, err error)
 	Del(taskID string) (err error)
 	Set(taskID string, msg *message.Message) (err error)
+	Get(taskID string) (msg *message.Message, err error)
 }

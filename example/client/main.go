@@ -8,6 +8,7 @@ import (
 	"github.com/YuleiGong/g_task/backend"
 	"github.com/YuleiGong/g_task/broker"
 	"github.com/YuleiGong/g_task/client"
+	"github.com/YuleiGong/g_task/message"
 )
 
 var (
@@ -16,6 +17,8 @@ var (
 	poolSize = 50
 	password = ""
 )
+
+var cli *client.Client
 
 func main() {
 	var err error
@@ -30,27 +33,50 @@ func main() {
 	opts := []client.ClientOpt{
 		client.WithBroker(broker.NewRedis(brokerCfg)),
 		client.WithBackend(backend.NewRedis(backendCfg)),
-	} //实际使用中，不需要初始化broker broker, client会自动复用server的配置
-	var cli *client.Client
+	}
+
 	if cli, err = g_task.Client(opts...); err != nil {
 		fmt.Printf("%v", err)
 		return
 	}
 
-	cfgs := []*client.sendConf{
-		cfg(),
-		cfgWithTimeout(),
-		cfgWithRetryNum(),
-	}
+	c1 := Cfg()
+	c2 := CfgWithTimeout()
+	c3 := CfgWithRetryNum()
 
+	cfgs := []*client.SendConf{c1, c2, c3}
+
+	var task []string
 	for _, c := range cfgs {
 		var taskID string
-		if taskID, err = cli.Send(c(), 1, 2); err != nil {
-			fmt.Printf("%s", err.Error())
+		if taskID, err = cli.Send(c, 1, 2); err != nil {
+			fmt.Printf("%s\n", err.Error())
 			return
 		}
-		fmt.Printf("%s", taskID)
-
+		task = append(task, taskID)
 	}
+	TaskStatus(task)
+	TaskResult(task)
 
+}
+
+func TaskStatus(task []string) {
+	for _, t := range task {
+		code, status := cli.Status(t)
+		fmt.Printf("code %d status %s \n", code, status)
+	}
+}
+
+func TaskResult(task []string) {
+	var err error
+	for _, t := range task {
+		for !cli.IsFinish(t) {
+			time.Sleep(1 * time.Second)
+		}
+		var res *message.MessageResult
+		if res, err = cli.GetTaskResult(t); err != nil {
+			fmt.Printf("err %v \n", err)
+		}
+		fmt.Printf("%+v \n", res)
+	}
 }

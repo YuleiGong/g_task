@@ -7,3 +7,16 @@ const (
 	RETRY   int64 = 2
 	STARTED int64 = 3 //任务开始执行
 )
+
+var FinishMap = map[int64]bool{
+	SUCCESS: true,
+	FAILURE: true,
+}
+
+var StatusMap = map[int64]string{
+	SUCCESS: "SUCCESS",
+	FAILURE: "FAILURE",
+	PENDING: "PENDING",
+	RETRY:   "RETRY",
+	STARTED: "STARTED",
+}

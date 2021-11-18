@@ -5,6 +5,7 @@ import (
 
 	"github.com/YuleiGong/g_task/backend"
 	"github.com/YuleiGong/g_task/broker"
+	"github.com/YuleiGong/g_task/log"
 	"github.com/YuleiGong/g_task/message"
 	"github.com/YuleiGong/g_task/server"
 )
@@ -62,7 +63,7 @@ func GetClient(opts ...ClientOpt) (*Client, error) {
 	return cli, err
 }
 
-func (c *Client) Send(sendConf *sendConf, args ...interface{}) (taskID string, err error) {
+func (c *Client) Send(sendConf *SendConf, args ...interface{}) (taskID string, err error) {
 	var m *message.Message
 	if m, err = message.NewMessage(sendConf.funcName, args...); err != nil {
 		return
@@ -75,4 +76,34 @@ func (c *Client) Send(sendConf *sendConf, args ...interface{}) (taskID string, e
 	}
 
 	return m.TaskID, err
+}
+
+func (c *Client) Status(taskID string) (code int64, status string) {
+	var msg *message.Message
+	var err error
+	if msg, err = c.broker.Get(taskID); err != nil {
+		if !errors.Is(err, broker.ErrBrokerNil) {
+			log.Error("%v", err)
+		}
+		return
+	}
+	return msg.Status, message.StatusMap[msg.Status]
+
+}
+
+func (c *Client) IsFinish(taskID string) bool {
+	var msg *message.Message
+	var err error
+	if msg, err = c.broker.Get(taskID); err != nil {
+		if !errors.Is(err, broker.ErrBrokerNil) {
+			log.Error("%v", err)
+		}
+		return false
+	}
+
+	return message.FinishMap[msg.Status]
+}
+
+func (c *Client) GetTaskResult(taskID string) (result *message.MessageResult, err error) {
+	return c.backend.GetResult(taskID)
 }

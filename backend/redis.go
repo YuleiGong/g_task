@@ -50,16 +50,21 @@ func (r *Redis) Activate() (err error) {
 	return r.client.Ping().Err()
 }
 
-func (r *Redis) GetResult(taskID string) (msg string, err error) {
+func (r *Redis) GetResult(taskID string) (msg *message.MessageResult, err error) {
+	key := fmt.Sprintf("%s-result", taskID)
 	var m []byte
-	if m, err = r.client.Get(taskID).Bytes(); err != nil {
-		if errors.Is(redis.Nil, err) {
-			return msg, nil
+	if m, err = r.client.Get(key).Bytes(); err != nil {
+		if errors.Is(err, redis.Nil) {
+			err = ErrBackendNil
 		}
 		return
 	}
 
-	return string(m), err
+	if msg, err = message.DefaultMessageResult.Deserialize(m); err != nil {
+		return
+	}
+
+	return msg, err
 }
 
 func (r *Redis) SetResult(taskID string, msg *message.MessageResult) (err error) {

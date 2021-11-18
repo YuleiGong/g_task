@@ -6,14 +6,14 @@ import (
 	"github.com/YuleiGong/g_task/client"
 )
 
-func cfg() *client.sendConf {
+func Cfg() *client.SendConf {
 	sendConf := client.NewSendConf("add")
 
 	return sendConf
 }
 
 //超时
-func cfgWithTimeout() *client.sendConf {
+func CfgWithTimeout() *client.SendConf {
 	sendConf := client.NewSendConf("add")
 	sendConf.SetTimeout(2 * time.Second)
 
@@ -21,7 +21,7 @@ func cfgWithTimeout() *client.sendConf {
 }
 
 //超时重试
-func cfgWithRetryNum() *client.sendConf {
+func CfgWithRetryNum() *client.SendConf {
 	sendConf := client.NewSendConf("add")
 	sendConf.SetTimeout(2 * time.Second)
 	sendConf.SetRetryNum(2)

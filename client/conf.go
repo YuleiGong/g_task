@@ -3,21 +3,21 @@ package client
 import "time"
 
 //send conf
-type sendConf struct {
+type SendConf struct {
 	funcName string
 	timeout  time.Duration
 	retryNum int64
 }
 
-func NewSendConf(funcName string) *sendConf {
-	return &sendConf{funcName: funcName}
+func NewSendConf(funcName string) *SendConf {
+	return &SendConf{funcName: funcName}
 }
 
-func (s *sendConf) SetTimeout(timeout time.Duration) {
+func (s *SendConf) SetTimeout(timeout time.Duration) {
 	s.timeout = timeout
 }
 
 //retryNum == 0 代表不重试
-func (s *sendConf) SetRetryNum(num int64) {
+func (s *SendConf) SetRetryNum(num int64) {
 	s.retryNum = num
 }

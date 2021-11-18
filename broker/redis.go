@@ -1,6 +1,7 @@
 package broker
 
 import (
+	"errors"
 	"time"
 
 	"github.com/YuleiGong/g_task/message"
@@ -107,4 +108,14 @@ func (r *Redis) Set(taskID string, msg *message.Message) (err error) {
 	}
 
 	return err
+}
+
+func (r *Redis) Get(taskID string) (msg *message.Message, err error) {
+	var m []byte
+	if m, err = r.client.Get(taskID).Bytes(); err != nil {
+		if errors.Is(err, redis.Nil) {
+			err = ErrBrokerNil
+		}
+	}
+	return message.DefaultMessage.Deserialize(m)
 }
