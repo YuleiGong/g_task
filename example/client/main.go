@@ -37,12 +37,20 @@ func main() {
 		return
 	}
 
-	sendConf := client.NewSendConf("add")
-	var taskID string
-	if taskID, err = cli.Send(sendConf, 1, 2); err != nil {
-		fmt.Printf("%s", err.Error())
-		return
+	cfgs := []*client.sendConf{
+		cfg(),
+		cfgWithTimeout(),
+		cfgWithRetryNum(),
 	}
-	fmt.Printf("%s", taskID)
+
+	for _, c := range cfgs {
+		var taskID string
+		if taskID, err = cli.Send(c(), 1, 2); err != nil {
+			fmt.Printf("%s", err.Error())
+			return
+		}
+		fmt.Printf("%s", taskID)
+
+	}
 
 }
