@@ -257,6 +257,49 @@ func cfgWithRetryNum() *client.sendConf {
 ```
 
 ## Broker
+* 使用 Broker 与任务队列通信，目前支持的任务队列只有 __redis__
+
+```go
+//初始化
+brokerCfg := broker.NewRedisConf(url, password, db)
+brokerCfg.SetPoolSize(poolSize)
+brokerCfg.SetExpireTime(1 * time.Hour)//默认2H
+
+```
+
+* 通过实现以下接口，可以自定义broker
+
+```go
+type Broker interface {
+	Clone() Broker
+	Activate() error
+	Push(taskID string, msg *message.Message) (err error)
+	Pop() (taskID string, msg *message.Message, err error)
+	Del(taskID string) (err error)
+	Set(taskID string, msg *message.Message) (err error)
+}
+```
 
 ## Backend
+* 使用 Backend 存储任务结果，目前支持的Backend只有 __redis__
+
+```go
+//初始化
+//backend
+backendCfg := backend.NewRedisConf(url, password, db)
+backendCfg.SetPoolSize(poolSize)
+backendCfg.SetExpireTime(1 * time.Hour) //消息存放时间，默认2H
+```
+
+
+* 通过实现以下接口，可以自定义backend
+
+```
+type Backend interface {
+	SetResult(taskID string, msg *message.MessageResult) error
+	GetResult(taskID string) (string, error)
+	Activate() error
+	Clone() Backend
+}
+```
 
