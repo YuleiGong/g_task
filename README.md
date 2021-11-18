@@ -1,7 +1,4 @@
 # g_task 异步任务队列
-* broker :redis 
-* backend :redis
-* worker
 
 * [特点](#特点)
 * [QuickStart](#QuickStart)
