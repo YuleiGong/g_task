@@ -134,31 +134,31 @@ func main() {
 * 初始化: 通过 ``` Server ``` 函数获取一个服务。
 
 ```go
-	opts := []server.WorkerOpt{
-		server.WithBroker(broker.NewRedis(brokerCfg)),
-		server.WithBackend(backend.NewRedis(backendCfg)),
-	}
-	svr := g_task.Server(opts...)
+opts := []server.WorkerOpt{
+	server.WithBroker(broker.NewRedis(brokerCfg)),
+	server.WithBackend(backend.NewRedis(backendCfg)),
+}
+svr := g_task.Server(opts...)
 
 ```
 
 * 配置: 需要配置服务的 __broker__ 和 __backend__ 。 详细见 broker backend 章节
 
 ```go
-    //broker
-	brokerCfg := broker.NewRedisConf(url, password, db)
-	brokerCfg.SetPoolSize(poolSize)
-	brokerCfg.SetExpireTime(1 * time.Hour)
+//broker
+brokerCfg := broker.NewRedisConf(url, password, db)
+brokerCfg.SetPoolSize(poolSize)
+brokerCfg.SetExpireTime(1 * time.Hour)
 
-	//backend
-	backendCfg := backend.NewRedisConf(url, password, db)
-	backendCfg.SetPoolSize(poolSize)
-	backendCfg.SetExpireTime(1 * time.Hour)
+//backend
+backendCfg := backend.NewRedisConf(url, password, db)
+backendCfg.SetPoolSize(poolSize)
+backendCfg.SetExpireTime(1 * time.Hour)
 
-	opts := []server.WorkerOpt{
-		server.WithBroker(broker.NewRedis(brokerCfg)),
-		server.WithBackend(backend.NewRedis(backendCfg)),
-	}
+opts := []server.WorkerOpt{
+	server.WithBroker(broker.NewRedis(brokerCfg)),
+	server.WithBackend(backend.NewRedis(backendCfg)),
+}
 ```
 
 * 任务注册: 一个任务，就是一个 __函数__ 。注册后，可以作为异步任务执行。注册函数至少要有一个error 返回值
