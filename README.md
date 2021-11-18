@@ -230,7 +230,7 @@ if taskID, err = cli.Send(sendConf, 1, 2); err != nil {
 
 ## TimeoutTask
 * 支持为异步任务设置超时时间，在发送任务的时候，需要配置超时时间。默认情况下，无超时。
-* 任务超时后，可以在 __backend__中查看任务状态。
+* 任务超时后，可以在 __backend__ 中查看任务状态。
 
 ```go
 func cfgWithTimeout() *client.sendConf {
