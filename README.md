@@ -186,13 +186,78 @@ defer svr.ShutDown()
 
 
 ## Client
-* 初始化
-* 配置
-* 发送任务
+* 初始化: 通过``` Client ``` 获取一个客户端。
+
+```go
+var cli *client.Client
+if cli, err = g_task.Client(opts...); err != nil {
+	fmt.Printf("%v", err)
+	return
+}
+```
+
+* 配置: 需要配客户端的 __broker__ 和 __backend__ 。 broker和backend必须和server保持的一致。
+
+```go
+brokerCfg := broker.NewRedisConf(url, password, db)
+brokerCfg.SetPoolSize(poolSize)
+brokerCfg.SetExpireTime(1 * time.Hour)
+//backend
+backendCfg := backend.NewRedisConf(url, password, db)
+backendCfg.SetPoolSize(poolSize)
+backendCfg.SetExpireTime(1 * time.Hour)
+opts := []client.ClientOpt{
+	client.WithBroker(broker.NewRedis(brokerCfg)),
+	client.WithBackend(backend.NewRedis(backendCfg)),
+}
+```
+* 配置(实际使用): 实际使用中，不必初始化 __broker__ 和 __backend__ 。client会自动选择server的broker/backend配置。
+
+```go
+var cli *client.Client
+if cli, err = g_task.Client(opts...); err != nil {
+	fmt.Printf("%v", err)
+	return
+}
+```
+
+* 发送任务: 发送任务，需要初始化一个 __sendConf__ 配置。
+
+```go
+sendConf := client.NewSendConf("add")
+if taskID, err = cli.Send(sendConf, 1, 2); err != nil {
+    return
+}
+```
+
 
 ## TimeoutTask
+* 支持为异步任务设置超时时间，在发送任务的时候，需要配置超时时间。默认情况下，无超时。
+* 任务超时后，可以在 __backend__中查看任务状态。
+
+```go
+func cfgWithTimeout() *client.sendConf {
+	sendConf := client.NewSendConf("add")
+	sendConf.SetTimeout(2 * time.Second)
+
+	return sendConf
+}
+
+```
 
 ## RetryTask
+* 支持为超时事件，设置重试，并设置重试次数。__注意__: 同时设置了Timeout 和 Retrynum ，才能触发RetryTask。
+
+```go
+//超时重试
+func cfgWithRetryNum() *client.sendConf {
+	sendConf := client.NewSendConf("add")
+	sendConf.SetTimeout(2 * time.Second)
+	sendConf.SetRetryNum(2)
+
+	return sendConf
+}
+```
 
 ## Broker
 

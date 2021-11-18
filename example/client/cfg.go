@@ -23,6 +23,7 @@ func cfgWithTimeout() *client.sendConf {
 //超时重试
 func cfgWithRetryNum() *client.sendConf {
 	sendConf := client.NewSendConf("add")
+	sendConf.SetTimeout(2 * time.Second)
 	sendConf.SetRetryNum(2)
 
 	return sendConf
