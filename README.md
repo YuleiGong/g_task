@@ -11,6 +11,7 @@
 * [RetryTask](#RetryTask)
 * [Broker](#Broker)
 * [Backend](#Backend)
+* [任务状态标识](#任务状态标识)
  
 
 ## 特点
@@ -227,6 +228,34 @@ if taskID, err = cli.Send(sendConf, 1, 2); err != nil {
 }
 ```
 
+* 查看任务执行情况
+
+```go
+func TaskStatus(task []string) {
+	for _, t := range task {
+		code, status := cli.Status(t)
+		fmt.Printf("code %d status %s \n", code, status)
+	}
+}
+```
+
+```go
+func TaskResult(task []string) {
+	var err error
+	for _, t := range task {
+		for !cli.IsFinish(t) {
+			time.Sleep(1 * time.Second)
+		}
+		var res *message.MessageResult
+		if res, err = cli.GetTaskResult(t); err != nil {
+			fmt.Printf("err %v \n", err)
+		}
+		fmt.Printf("%+v \n", res)
+	}
+}
+```
+
+
 
 ## TimeoutTask
 * 支持为异步任务设置超时时间，在发送任务的时候，需要配置超时时间。默认情况下，无超时。
@@ -277,6 +306,7 @@ type Broker interface {
 	Pop() (taskID string, msg *message.Message, err error)
 	Del(taskID string) (err error)
 	Set(taskID string, msg *message.Message) (err error)
+	Get(taskID string) (msg *message.Message, err error)
 }
 ```
 
@@ -302,4 +332,12 @@ type Backend interface {
 	Clone() Backend
 }
 ```
+
+## 任务状态标识
+
+  * __SUCCES__ int64 = 0  //成功
+  * __FAILURE__ int64 = -1 //失败
+  * __PENDING__ int64 = 1  //排队中/挂起
+  * __RETRY__  int64 = 2  //重试
+  * __STARTED__ int64 = 3  //任务开始执行
 
