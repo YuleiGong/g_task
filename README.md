@@ -12,6 +12,7 @@
 * [Broker](#Broker)
 * [Backend](#Backend)
 * [任务状态标识](#任务状态标识)
+* [CallBack](#CallBack)
  
 
 ## 特点
@@ -372,3 +373,6 @@ type Backend interface {
   * __RETRY__  int64 = 2  //重试
   * __STARTED__ int64 = 3  //任务开始执行
 
+
+## CallBack
+* TODO
