@@ -18,21 +18,48 @@ func NewFuncWorker(name string, wFunc interface{}) FuncWorker {
 
 }
 
-func (f *FuncWorker) execFunc(args ...message.Arg) (vals []string, err error) {
+func (f *FuncWorker) toValue(val interface{}, Type int) reflect.Value {
+	var inter interface{}
+	switch Type {
+	case message.Bool:
+		inter = cast.ToBool(val)
+	case message.Int:
+		inter = cast.ToInt(val)
+	case message.Int8:
+		inter = cast.ToInt8(val)
+	case message.Int16:
+		inter = cast.ToInt16(val)
+	case message.Int32:
+		inter = cast.ToInt32(val)
+	case message.Int64:
+		inter = cast.ToInt64(val)
+	case message.Uint:
+		inter = cast.ToUint(val)
+	case message.Uint8:
+		inter = cast.ToUint8(val)
+	case message.Uint16:
+		inter = cast.ToUint16(val)
+	case message.Uint32:
+		inter = cast.ToUint32(val)
+	case message.Uint64:
+		inter = cast.ToUint64(val)
+	case message.Float32:
+		inter = cast.ToFloat32(val)
+	case message.Float64:
+		inter = cast.ToFloat32(val)
+	case message.String:
+		inter = cast.ToString(val)
+	}
+
+	return reflect.ValueOf(inter)
+}
+
+func (f *FuncWorker) execFunc(args ...message.Signature) (vals []string, err error) {
 	fc := reflect.ValueOf(f.wFunc)
 
 	in := make([]reflect.Value, len(args))
 	for i, arg := range args {
-		var inter interface{}
-		switch arg.Type {
-		case "int":
-			inter = cast.ToInt(arg.Val)
-		case "int64":
-			inter = cast.ToInt64(arg.Val)
-		case "string":
-			inter = cast.ToString(arg.Val)
-		}
-		in[i] = reflect.ValueOf(inter)
+		in[i] = f.toValue(arg.Val, arg.Type)
 	}
 
 	val := fc.Call(in)

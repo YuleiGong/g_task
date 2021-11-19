@@ -116,9 +116,13 @@ func main() {
 		return
 	}
 
+    sig := []message.Signature{
+		{Type: message.Int, Val: 1},
+		{Type: message.Int, Val: 2},
+	}
 	sendConf := client.NewSendConf("add")
 	var taskID string
-	if taskID, err = cli.Send(sendConf, 1, 2); err != nil {
+	if taskID, err = cli.Send(sendConf, sig...); err != nil {
 		fmt.Printf("%s", err.Error())
 		return
 	}
@@ -219,14 +223,41 @@ if cli, err = g_task.Client(opts...); err != nil {
 }
 ```
 
-* 发送任务: 发送任务，需要初始化一个 __sendConf__ 配置。
+* 发送任务: 发送任务，需要初始化一个 __SendConf__ 配置和 __Signature__ 参数签名配置。
 
 ```go
 sendConf := client.NewSendConf("add")
-if taskID, err = cli.Send(sendConf, 1, 2); err != nil {
+sig := []message.Signature{
+		{Type: message.Int, Val: 1},
+		{Type: message.Int, Val: 2},
+}
+if taskID, err = cli.Send(sendConf, sig...); err != nil {
     return
 }
 ```
+
+* 支持的异步函数参数类型:
+
+```go
+const (
+	Bool = iota
+	Int
+	Int8
+	Int16
+	Int32
+	Int64
+	Uint
+	Uint8
+	Uint16
+	Uint32
+	Uint64
+	Float32
+	Float64
+	String
+)
+```
+    
+
 
 * 查看任务执行情况
 

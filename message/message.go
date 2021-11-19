@@ -2,7 +2,6 @@ package message
 
 import (
 	"encoding/json"
-	"reflect"
 	"time"
 
 	"github.com/twinj/uuid"
@@ -11,25 +10,22 @@ import (
 type Message struct {
 	TaskID      string        `json:"task_id"`
 	FuncName    string        `json:"func_name"`
-	Args        []Arg         `json:"args"`
+	Args        []Signature   `json:"args"`
 	Status      int64         `json:"status"`
 	RetryNum    int64         `json:"retry_num"`
 	MaxRetryNum int64         `json:"max_retry_num"`
 	Timeout     time.Duration `json:"timeout"`
 }
-
-type Arg struct {
-	Type string      `json:"type"`
+type Signature struct {
+	Type int         `json:"Type"`
 	Val  interface{} `json:"val"`
 }
 
 var DefaultMessage = &Message{}
 
-func NewMessage(funcName string, args ...interface{}) (m *Message, err error) {
+func NewMessage(funcName string, args ...Signature) (m *Message, err error) {
 	m = &Message{}
-	for _, arg := range args {
-		m.Args = append(m.Args, DefaultMessage.toTypeArg(arg))
-	}
+	m.Args = args
 	m.FuncName = funcName
 	m.TaskID = uuid.NewV4().String()
 	m.Status = PENDING
@@ -75,14 +71,6 @@ func (m *Message) IsRetry() bool {
 
 func (m *Message) IsTimeoutOpt() bool {
 	return m.Timeout >= 1
-}
-
-func (m *Message) toTypeArg(arg interface{}) (typeArg Arg) {
-	typeArg = Arg{}
-	typeArg.Type = reflect.TypeOf(arg).Name()
-	typeArg.Val = arg
-
-	return typeArg
 }
 
 func (m *Message) Serialize() (s string, err error) {

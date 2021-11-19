@@ -3,6 +3,7 @@
 package g_task
 
 import (
+	"fmt"
 	"runtime/debug"
 	"testing"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/YuleiGong/g_task/backend"
 	"github.com/YuleiGong/g_task/broker"
 	"github.com/YuleiGong/g_task/client"
+	"github.com/YuleiGong/g_task/message"
 	"github.com/YuleiGong/g_task/server"
 )
 
@@ -45,6 +47,7 @@ func TestServerRun(t *testing.T) {
 	svr := Server(opts...)
 
 	svr.Reg("add", add)
+	svr.Reg("prints", prints)
 	if err = svr.Run(10); err != nil {
 		t.Logf("%v", err)
 	}
@@ -55,6 +58,11 @@ func TestServerRun(t *testing.T) {
 func add(a, b int) (int, error) {
 
 	return a + b, nil
+}
+
+func prints() error {
+	fmt.Println("hellp world")
+	return nil
 }
 
 func TestClientRun(t *testing.T) {
@@ -78,9 +86,13 @@ func TestClientRun(t *testing.T) {
 	}
 
 	sendConf := client.NewSendConf("add")
-	for i := 0; i < 1000; i++ {
+	sig := []message.Signature{
+		{Type: message.Int, Val: 1},
+		{Type: message.Int, Val: 2},
+	}
+	for i := 0; i < 10; i++ {
 		var taskID string
-		if taskID, err = cli.Send(sendConf, 1, 2); err != nil {
+		if taskID, err = cli.Send(sendConf, sig...); err != nil {
 			t.Fatal(err)
 		}
 		t.Log(taskID)

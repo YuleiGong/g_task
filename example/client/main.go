@@ -46,10 +46,14 @@ func main() {
 
 	cfgs := []*client.SendConf{c1, c2, c3}
 
+	sig := []message.Signature{
+		{Type: message.Int64, Val: 1},
+		{Type: message.Int64, Val: 2},
+	}
 	var task []string
 	for _, c := range cfgs {
 		var taskID string
-		if taskID, err = cli.Send(c, 1, 2); err != nil {
+		if taskID, err = cli.Send(c, sig...); err != nil {
 			fmt.Printf("%s\n", err.Error())
 			return
 		}

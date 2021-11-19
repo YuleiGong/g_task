@@ -1,6 +1,23 @@
 package message
 
 const (
+	Bool = iota
+	Int
+	Int8
+	Int16
+	Int32
+	Int64
+	Uint
+	Uint8
+	Uint16
+	Uint32
+	Uint64
+	Float32
+	Float64
+	String
+)
+
+const (
 	SUCCESS int64 = 0  //成功
 	FAILURE int64 = -1 //失败
 	PENDING int64 = 1  //排队中/挂起

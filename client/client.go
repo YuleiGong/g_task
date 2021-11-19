@@ -63,7 +63,7 @@ func GetClient(opts ...ClientOpt) (*Client, error) {
 	return cli, err
 }
 
-func (c *Client) Send(sendConf *SendConf, args ...interface{}) (taskID string, err error) {
+func (c *Client) Send(sendConf *SendConf, args ...message.Signature) (taskID string, err error) {
 	var m *message.Message
 	if m, err = message.NewMessage(sendConf.funcName, args...); err != nil {
 		return
