@@ -38,15 +38,27 @@ func GetClient(opts ...ClientOpt) (*Client, error) {
 	if cli != nil {
 		return cli, err
 	}
-	cli = &Client{}
+	cli := &Client{}
+	if cli, err = NewClient(opts...); err != nil {
+		return cli, err
+	}
 
+	if cli.backend == nil {
+		err = errors.New("please run server or set backend and broker")
+	}
+
+	return cli, err
+}
+
+func NewClient(opts ...ClientOpt) (cli *Client, err error) {
+	cli = &Client{}
 	for _, opt := range opts {
 		if err = opt(cli); err != nil {
 			return cli, err
 		}
 	}
 
-	if server.GetServer() != nil {
+	if server.GetServer() != nil { //获取当前的服务的配置
 		cli.backend = server.GetServer().CloneBackend()
 		cli.broker = server.GetServer().CloneBroker()
 		if err = cli.backend.Activate(); err != nil {
@@ -55,9 +67,6 @@ func GetClient(opts ...ClientOpt) (*Client, error) {
 		if err = cli.broker.Activate(); err != nil {
 			return cli, err
 		}
-	}
-	if cli.backend == nil {
-		err = errors.New("please run server or set backend and broker")
 	}
 
 	return cli, err
