@@ -12,7 +12,7 @@
 * [Broker](#Broker)
 * [Backend](#Backend)
 * [任务状态标识](#任务状态标识)
-* [CallBack](#CallBack)
+* [后续计划](#后续计划)
  
 
 ## 特点
@@ -374,5 +374,6 @@ type Backend interface {
   * __STARTED__ int64 = 3  //任务开始执行
 
 
-## CallBack
-* TODO
+## 后续计划
+* CallBack
+* 任务参数校验
