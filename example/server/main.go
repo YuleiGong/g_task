@@ -39,9 +39,9 @@ func main() {
 	svr := g_task.Server(opts...)
 	//函数注册
 	svr.Reg("add", add)
-	if err := svr.Run(10); err != nil {
+	if err := svr.Run(2); err != nil {
 		fmt.Printf("%v", err)
 	}
-	//defer svr.ShutDown()
+	defer svr.ShutDown()
 
 }

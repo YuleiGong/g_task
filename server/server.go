@@ -49,6 +49,7 @@ func (s *Server) Run(numWorkers int) (err error) {
 }
 
 func (s *Server) ShutDown() {
+	log.Info("stop")
 	s.worker.Stop()
 }
 

@@ -88,8 +88,9 @@ func (w *Worker) wokerSchedule() {
 			log.Error("%v", err)
 			w.Stop()
 		}
-		w.execFuncWorker(taskID, msg)
+		go w.execFuncWorker(taskID, msg)
 	}
+
 }
 
 func (w *Worker) execFuncWorker(taskID string, msg *message.Message) {

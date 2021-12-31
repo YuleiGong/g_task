@@ -41,10 +41,10 @@ func main() {
 	}
 
 	c1 := Cfg()
-	c2 := CfgWithTimeout()
-	c3 := CfgWithRetryNum()
+	//c2 := CfgWithTimeout()
+	//c3 := CfgWithRetryNum()
 
-	cfgs := []*client.SendConf{c1, c2, c3}
+	cfgs := []*client.SendConf{c1, c1, c1, c1}
 
 	sig := []message.Signature{
 		{Type: message.Int64, Val: 1},
@@ -59,7 +59,7 @@ func main() {
 		}
 		task = append(task, taskID)
 	}
-	TaskStatus(task)
+	//TaskStatus(task)
 	TaskResult(task)
 
 }
@@ -76,6 +76,7 @@ func TaskResult(task []string) {
 	for _, t := range task {
 		for !cli.IsFinish(t) {
 			time.Sleep(1 * time.Second)
+			continue
 		}
 		var res *message.MessageResult
 		if res, err = cli.GetTaskResult(t); err != nil {
