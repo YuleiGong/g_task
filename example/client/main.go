@@ -45,6 +45,9 @@ func main() {
 	//c3 := CfgWithRetryNum()
 
 	cfgs := []*client.SendConf{c1, c1, c1, c1}
+	for i := 0; i < 100000; i++ {
+		cfgs = append(cfgs, c1)
+	}
 
 	sig := []message.Signature{
 		{Type: message.Int64, Val: 1},
